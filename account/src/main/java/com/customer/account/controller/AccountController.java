@@ -1,6 +1,11 @@
 package com.customer.account.controller;
 
+import com.customer.account.dto.AccountResponse;
+import com.customer.account.dto.UserInfoResponse;
+import com.customer.account.entity.Account;
+import com.customer.account.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,12 +15,14 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/open")
-    public Account openAccount(@RequestParam Long customerID, @RequestParam double initialCredit) {
-        return accountService.createAccount(customerID, initialCredit);
+    public ResponseEntity<String> openAccount(@RequestParam Long customerID, @RequestParam double initialCredit) {
+        Account account = accountService.openAccount(customerID, initialCredit);
+        return ResponseEntity.ok("Account created successfully with customerId: " + account.getId());
     }
 
-    @GetMapping("/{customerID}")
-    public Account getAccountInfo(@PathVariable Long customerID) {
-        return accountService.getAccountByCustomerID(customerID);
+    @GetMapping("/userInfo")
+    public ResponseEntity<UserInfoResponse> getAccountInfo(@RequestParam Long customerID) {
+        UserInfoResponse userInfo = accountService.getAccountInfo(customerID);
+        return ResponseEntity.ok(userInfo);
     }
 }

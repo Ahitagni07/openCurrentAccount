@@ -1,7 +1,14 @@
 package com.customer.transaction.controller;
 
+import com.customer.transaction.dto.TransactionInfo;
+import com.customer.transaction.dto.TransactionRequest;
+import com.customer.transaction.entity.Transaction;
+import com.customer.transaction.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -9,13 +16,15 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/add")
-    public Transaction addTransaction(@RequestParam Long accountId, @RequestParam double amount) {
-        return transactionService.createTransaction(accountId, amount);
+    @PostMapping("/create")
+    public ResponseEntity<String> createTransaction(@RequestBody TransactionRequest transactionRequest) {
+        transactionService.createTransaction(transactionRequest.getAccountId(), transactionRequest.getAmount());
+        return ResponseEntity.ok("Transaction is created for "+transactionRequest.getAccountId());
     }
 
     @GetMapping("/account/{accountId}")
-    public List<Transaction> getTransactionsByAccountId(@PathVariable Long accountId) {
-        return transactionService.getTransactionsByAccountId(accountId);
+    public ResponseEntity<List<TransactionInfo>> getTransactionsByAccountId(@PathVariable Long accountId) {
+        List<TransactionInfo> transactionInfoList = transactionService.getTransactionsByAccountId(accountId);
+        return ResponseEntity.ok(transactionInfoList);
     }
 }
