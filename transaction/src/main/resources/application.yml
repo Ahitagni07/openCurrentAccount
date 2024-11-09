@@ -1,11 +1,12 @@
 # src/main/resources/application.yml
 server:
-  port:8081
+  port: 8082
+
 spring:
   application:
-    name:Account
+    name: Transaction
   datasource:
-    url: jdbc:h2:mem:transactiondb;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:transactiondb;
     driver-class-name: org.h2.Driver
     username: sa
     password: password

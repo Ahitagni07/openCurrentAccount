@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class TransactionInfo {
-    private Long accountId;
+    private Long trxId;
     private double amount;
 }

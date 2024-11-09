@@ -24,12 +24,12 @@ public class TransactionService {
     }
 
     public List<TransactionInfo> getTransactionsByAccountId(Long accountID) {
-        List<Transaction> transactionList = transactionRepository.findByAccountID(accountID);
+        List<Transaction> transactionList = transactionRepository.findByAccountId(accountID);
         List<TransactionInfo> transactionInfoList = new ArrayList<>();
         transactionList.forEach(transaction -> {
             TransactionInfo transactionInfo = new TransactionInfo();
-            transactionInfo.setAccountId(transactionInfo.getAccountId());
-            transactionInfo.setAmount(transactionInfo.getAmount());
+            transactionInfo.setTrxId(transaction.getId());
+            transactionInfo.setAmount(transaction.getAmount());
             transactionInfoList.add(transactionInfo);
         });
         return transactionInfoList;

@@ -15,8 +15,6 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long accountId;
-    private double amount;
+    private Double amount;
     private LocalDateTime timestamp;
-
-    // Getters and Setters
 }

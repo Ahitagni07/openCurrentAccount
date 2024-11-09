@@ -19,7 +19,7 @@ public class TransactionController {
     @PostMapping("/create")
     public ResponseEntity<String> createTransaction(@RequestBody TransactionRequest transactionRequest) {
         transactionService.createTransaction(transactionRequest.getAccountId(), transactionRequest.getAmount());
-        return ResponseEntity.ok("Transaction is created for "+transactionRequest.getAccountId());
+        return ResponseEntity.ok("Transaction is created for account Id "+transactionRequest.getAccountId());
     }
 
     @GetMapping("/account/{accountId}")

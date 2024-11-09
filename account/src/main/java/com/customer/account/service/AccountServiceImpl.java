@@ -2,10 +2,10 @@ package com.customer.account.service;
 
 import com.customer.account.dto.*;
 import com.customer.account.entity.Account;
-import com.customer.account.entity.User;
+import com.customer.account.entity.CustomerDetail;
+import com.customer.account.exceptionhandler.CustomerNotFoundException;
 import com.customer.account.repository.AccountRepository;
-import com.customer.account.repository.UserRepository;
-import jakarta.transaction.Transaction;
+import com.customer.account.repository.CustomerDetailRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -24,7 +24,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private CustomerDetailRepository userRepository;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -35,35 +35,35 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
-    public Account openAccount(Long customerId, double initialCredit) {
+    public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException {
 
-        User user = userRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        CustomerDetail customerDetail = userRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with Id : "+ customerId));
 
         Account account = new Account();
-        account.setUser(user);
+        account.setCustomerDetail(customerDetail);
         account.setBalance(initialCredit);
         Account savedAccount = accountRepository.save(account);
 
         // If initial credit is provided, create a transaction in the Transaction Service
         if (initialCredit > 0) {
             TransactionRequest transactionRequest = new TransactionRequest(account.getId(), initialCredit);
-            restTemplate.postForObject("http://localhost:8081/api/transactions/create", transactionRequest, Void.class);
+            restTemplate.postForObject("http://localhost:8082/api/transactions/create", transactionRequest, String.class);
         }
-        return new Account(savedAccount.getId(), user, savedAccount.getBalance());
+        return Optional.of(new Account(savedAccount.getId(), customerDetail, savedAccount.getBalance()));
     }
 
-    public UserInfoResponse getAccountInfo(Long customerId) {
+    public Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException {
 
-        User user = userRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        CustomerDetail customerDetail = userRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with Id : "+ customerId));
 
         UserInfoResponse response = new UserInfoResponse();
-        response.setName(user.getName());
-        response.setSurname(user.getSurname());
+        response.setName(customerDetail.getName());
+        response.setSurname(customerDetail.getSurname());
 
         double totalBalance = 0.0;
-        List<Account> accounts = accountRepository.findByUserId(user);
+        List<Account> accounts = accountRepository.findByCustomerDetail(customerDetail);
 
         for (Account account : accounts) {
             AccountInfo accountInfo = new AccountInfo();
@@ -72,25 +72,22 @@ public class AccountServiceImpl implements AccountService {
             totalBalance += account.getBalance();
 
             // Retrieve transactions for each account from the Transaction Service
-            ResponseEntity<List<TransactionInfo>> transactionInfoResp = restTemplate.exchange(
-                    "http://localhost:8081/transactions/account/" + account.getId(),
+            ResponseEntity<List<TransactionInfo>> transactionInfoListResp = restTemplate.exchange(
+                    "http://localhost:8082/api/transactions/account/" + account.getId(),
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<List<TransactionInfo>>() {});
 
             List<TransactionInfo> transactionInfoList = new ArrayList<>();
-            if(transactionInfoResp.getStatusCode().is2xxSuccessful()){
-                transactionInfoList = transactionInfoResp.getBody();
+            if(transactionInfoListResp.getStatusCode().is2xxSuccessful()){
+                transactionInfoList = transactionInfoListResp.getBody();
             }
-//            List<TransactionInfo> transactionInfoList = transactions.stream()
-//                    .map(t -> new TransactionInfo(t.getId(), t.getAmount()))
-//                    .collect(Collectors.toList());
 
             accountInfo.setTransactions(transactionInfoList);
             response.getAccounts().add(accountInfo);
         }
 
         response.setBalance(totalBalance);
-        return response;
+        return Optional.of(response);
     }
 }

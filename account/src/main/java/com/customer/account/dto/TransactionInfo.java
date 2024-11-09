@@ -1,13 +1,12 @@
 package com.customer.account.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class TransactionInfo {
-    private Long transactionId;
+    private Long trxId;
     private double amount;
-
-    public TransactionInfo(Long transactionId, double amount) {
-        this.transactionId = transactionId;
-        this.amount = amount;
-    }
-
-    // Getters and setters
 }
+
