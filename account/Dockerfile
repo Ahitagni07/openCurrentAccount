@@ -1,9 +1,6 @@
 # Use an official OpenJDK runtime as a parent image
 FROM openjdk:17-jdk-slim
 
-# Set the working directory
-WORKDIR /app
-
 # Copy the JAR file (built by Maven or Gradle) into the container
 COPY target/*.jar account-service.jar
 
@@ -11,4 +8,4 @@ COPY target/*.jar account-service.jar
 EXPOSE 8080
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "account-service.jar"]
+ENTRYPOINT ["java", "-jar", "/account-service.jar"]
