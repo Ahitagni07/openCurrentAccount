@@ -2,6 +2,7 @@ package com.customer.transaction.service;
 
 import com.customer.transaction.dto.TransactionInfo;
 import com.customer.transaction.entity.Transaction;
+import com.customer.transaction.exceptionhandler.AccountNotFoundException;
 import com.customer.transaction.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,11 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<TransactionInfo> getTransactionsByAccountId(Long accountID) {
+    public Optional<List<TransactionInfo>> getTransactionsByAccountId(Long accountID) throws AccountNotFoundException {
         List<Transaction> transactionList = transactionRepository.findByAccountId(accountID);
+        if(transactionList.isEmpty()) {
+            throw new AccountNotFoundException("Account not found with accountId : "+ accountID);
+        }
         List<TransactionInfo> transactionInfoList = new ArrayList<>();
         transactionList.forEach(transaction -> {
             TransactionInfo transactionInfo = new TransactionInfo();
@@ -32,6 +36,6 @@ public class TransactionService {
             transactionInfo.setAmount(transaction.getAmount());
             transactionInfoList.add(transactionInfo);
         });
-        return transactionInfoList;
+        return Optional.of(transactionInfoList);
     }
 }

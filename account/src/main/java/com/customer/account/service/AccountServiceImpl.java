@@ -38,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
     public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with Id : "+ customerId));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : "+ customerId));
 
         Account account = new Account();
         account.setCustomerDetail(customerDetail);
@@ -56,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
     public Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with Id : "+ customerId));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : "+ customerId));
 
         UserInfoResponse response = new UserInfoResponse();
         response.setName(customerDetail.getName());
