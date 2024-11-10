@@ -14,17 +14,17 @@ variables:
 
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '395345e9-d5c7-4d1d-a77c-8399fc07c12f'
-  imageRepository: 'opencurrentaccount'
+  imageRepository: 'accountrepo'
   containerRegistry: 'openaccountcicd.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'openaccountcicd11948285-auth'
 
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
   # Name of the new namespace being created to deploy the PR changes.
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
+
+pool:
+ name:'azureagent' 
 
 stages:
 - stage: Build
