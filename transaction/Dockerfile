@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file (built by Maven or Gradle) into the container
-COPY target/*.jar transaction.jar
+ADD target/*.jar transaction.jar
 
 # Expose the port that the service runs on (e.g., 8082)
 EXPOSE 8082
