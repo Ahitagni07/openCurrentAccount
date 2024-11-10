@@ -1,14 +1,17 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
+# Use Maven with JDK 17 to build and run the application
+FROM maven:3.8.5-openjdk-17
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the JAR file (built by Maven or Gradle) into the container
-ADD target/*.jar transaction.jar
+# Copy the Maven project files into the container
+COPY . .
 
-# Expose the port that the service runs on (e.g., 8082)
+# Package the application (will create target/*.jar)
+RUN mvn clean package -DskipTests
+
+# Expose the port the Spring Boot application runs on
 EXPOSE 8082
 
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "transaction.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "target/app.jar"]
