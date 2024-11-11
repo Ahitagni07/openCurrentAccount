@@ -2,7 +2,6 @@ package com.customer.account.config;
 
 import com.customer.account.entity.CustomerDetail;
 import com.customer.account.repository.CustomerDetailRepository;
-import org.hibernate.annotations.CollectionTypeRegistration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

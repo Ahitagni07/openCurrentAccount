@@ -4,19 +4,14 @@ FROM maven:3.8.5-openjdk-17
 # Set the working directory inside the container
 WORKDIR /transactionapp
 
-# Copy only the pom.xml first and download dependencies to cache them
-COPY pom.xml .
-
-RUN mvn dependency:go-offline -B
-
-# Copy the source code
-COPY src ./src
+# Copy the Maven project files into the container
+COPY . .
 
 # Package the application (will create target/*.jar)
 RUN mvn clean package -DskipTests
 
 # Expose the port the Spring Boot application runs on
-EXPOSE 8082
+EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "target/*.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar target/*.jar"]
