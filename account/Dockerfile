@@ -2,7 +2,7 @@
 FROM maven:3.8.5-openjdk-17
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /accountapp
 
 # Copy the Maven project files into the container
 COPY . .
