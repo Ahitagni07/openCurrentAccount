@@ -16,7 +16,7 @@ variables:
   dockerRegistryServiceConnection: '8641de33-eb53-4ed9-89ee-1961181bdd82'
   imageRepository: 'transaction'
   containerRegistry: 'openaccountacr.azurecr.io'
-  dockerfilePath: '*/transaction/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/transaction/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
