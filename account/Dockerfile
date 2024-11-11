@@ -14,4 +14,4 @@ RUN mvn clean package -DskipTests
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "target/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar target/*.jar"]
