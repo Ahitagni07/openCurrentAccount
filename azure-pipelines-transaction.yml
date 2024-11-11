@@ -64,8 +64,8 @@ stages:
             inputs:
               action: deploy
               manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
+                $(Pipeline.Workspace)/manifests/transaction-deployment.yml
+                $(Pipeline.Workspace)/manifests/transaction-service.yml
               containers: |
                 $(containerRegistry)/$(imageRepository):$(tag)
 
