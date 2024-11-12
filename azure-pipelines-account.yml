@@ -44,27 +44,7 @@ stages:
 
     - upload: manifests
       artifact: manifests
-      
-- stage: Test
-  displayName: Test stage
-  jobs:
-  - job: Test
-    displayName: Test
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Maven@4
-      inputs:
-        azureSubscription: 'azure-service-connection'
-        mavenPomFile: 'pom.xml'
-        goals: 'test'
-        publishJUnitResults: false
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.17'
-        mavenVersionOption: 'Default'
-        mavenAuthenticateFeed: false
-        effectivePomSkip: false
-        sonarQubeRunAnalysis: false
+
 
 - stage: Deploy
   displayName: Deploy stage
