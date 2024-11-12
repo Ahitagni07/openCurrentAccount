@@ -24,7 +24,7 @@ class AccountControllerTest {
     @Mock
     private AccountService accountService;
 
-    //@InjectMocks
+    @InjectMocks
     private AccountController accountController;
 
     @BeforeEach
