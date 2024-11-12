@@ -1,7 +1,7 @@
-apiVersion : apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transaction 
+  name: transaction
 spec:
   replicas: 1
   selector:
@@ -10,10 +10,10 @@ spec:
   template:
     metadata:
       labels:
-        app: transaction 
+        app: transaction
     spec:
       containers:
-        - name: transaction 
+        - name: transaction
           image: openaccountacr.azurecr.io/transaction
           ports:
-          - containerPort: 8082
+            - containerPort: 8082

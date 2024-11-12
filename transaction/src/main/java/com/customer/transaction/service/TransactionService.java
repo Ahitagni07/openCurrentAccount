@@ -18,18 +18,18 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public Transaction createTransaction(Long accountID, double amount) {
+    public void createTransaction(Long accountID, Double amount) {
         Transaction transaction = new Transaction();
         transaction.setAccountId(accountID);
         transaction.setAmount(amount);
         transaction.setTimestamp(LocalDateTime.now());
-        return transactionRepository.save(transaction);
+        transactionRepository.save(transaction);
     }
 
     public Optional<List<TransactionInfo>> getTransactionsByAccountId(Long accountID) throws AccountNotFoundException {
         List<Transaction> transactionList = transactionRepository.findByAccountId(accountID);
-        if(transactionList.isEmpty()) {
-            throw new AccountNotFoundException("Account not found with accountId : "+ accountID);
+        if (transactionList.isEmpty()) {
+            throw new AccountNotFoundException("Account not found with accountId : " + accountID);
         }
         List<TransactionInfo> transactionInfoList = new ArrayList<>();
         transactionList.forEach(transaction -> {
