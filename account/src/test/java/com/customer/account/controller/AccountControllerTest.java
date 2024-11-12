@@ -73,23 +73,6 @@ class AccountControllerTest {
         verify(accountService, times(1)).openAccount(customerID, initialCredit);
     }
 
-//    @Test
-//    void testOpenAccount_ExceptionHandling() throws CustomerNotFoundException, ConnectivityException {
-//        Long customerID = 1L;
-//        double initialCredit = 100.0;
-//
-//        // Mock the service method to throw an exception
-//        when(accountService.openAccount(customerID, initialCredit)).thenThrow(new RuntimeException("Database error"));
-//
-//        // Verify that the exception is thrown
-//        Exception exception = assertThrows(RuntimeException.class, () -> {
-//            accountController.openAccount(customerID, initialCredit);
-//        });
-//
-//        assertEquals("java.lang.RuntimeException: Database error", exception.getMessage());
-//        verify(accountService, times(1)).openAccount(customerID, initialCredit);
-//    }
-
     @Test
     void testGetAccountInfo_SuccessfulFetch() throws CustomerNotFoundException {
         Long customerID = 1L;
