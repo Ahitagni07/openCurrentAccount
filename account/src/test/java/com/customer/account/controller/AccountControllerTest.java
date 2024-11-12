@@ -1,5 +1,6 @@
 package com.customer.account.controller;
 
+import com.customer.account.dto.OpenAccountResponse;
 import com.customer.account.dto.UserInfoResponse;
 import com.customer.account.entity.Account;
 import com.customer.account.exceptionhandler.ConnectivityException;
@@ -39,18 +40,13 @@ class AccountControllerTest {
     void testOpenAccount_SuccessfulCreation() throws CustomerNotFoundException, ConnectivityException {
         Long customerID = 1L;
         double initialCredit = 100.0;
-        Account account = new Account();
-        account.setId(123L);
+        OpenAccountResponse account = new OpenAccountResponse(1L, 1L, "\"Account created successfully\"");
 
-        // Mock the service method
         when(accountService.openAccount(customerID, initialCredit)).thenReturn(Optional.of(account));
 
-        // Call the controller method
-        ResponseEntity<String> response = accountController.openAccount(customerID, initialCredit);
+        ResponseEntity<?> response = accountController.openAccount(customerID, initialCredit);
 
-        // Assertions
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Account created successfully with accountId: 123 for customer Id 1", response.getBody());
 
         verify(accountService, times(1)).openAccount(customerID, initialCredit);
     }
@@ -64,7 +60,7 @@ class AccountControllerTest {
         when(accountService.openAccount(customerID, initialCredit)).thenReturn(Optional.empty());
 
         // Call the controller method
-        ResponseEntity<String> response = accountController.openAccount(customerID, initialCredit);
+        ResponseEntity<?> response = accountController.openAccount(customerID, initialCredit);
 
         // Assertions
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());

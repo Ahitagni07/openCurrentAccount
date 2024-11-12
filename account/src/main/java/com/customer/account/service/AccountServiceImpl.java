@@ -1,6 +1,7 @@
 package com.customer.account.service;
 
 import com.customer.account.dto.AccountInfo;
+import com.customer.account.dto.OpenAccountResponse;
 import com.customer.account.dto.TransactionInfo;
 import com.customer.account.dto.TransactionRequest;
 import com.customer.account.dto.UserInfoResponse;
@@ -45,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
-    public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException {
+    public Optional<OpenAccountResponse> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : " + customerId));
@@ -57,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
 
         createTransaction(customerId, initialCredit, account);
 
-        return Optional.of(new Account(savedAccount.getId(), customerDetail, savedAccount.getBalance()));
+        return Optional.of(new OpenAccountResponse(savedAccount.getId(), customerDetail.getId(), "Account created successfully"));
     }
 
     public void createTransaction(Long customerId, double initialCredit, Account account) throws ConnectivityException {

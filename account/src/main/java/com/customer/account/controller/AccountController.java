@@ -1,5 +1,6 @@
 package com.customer.account.controller;
 
+import com.customer.account.dto.OpenAccountResponse;
 import com.customer.account.dto.UserInfoResponse;
 import com.customer.account.entity.Account;
 import com.customer.account.exceptionhandler.CustomerNotFoundException;
@@ -27,12 +28,12 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping(value = "/open", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> openAccount(@RequestParam(required = true) @Valid @Positive Long customerID,
+    public ResponseEntity<?> openAccount(@RequestParam(required = true) @Valid @Positive Long customerID,
                                               @RequestParam(required = true) @Valid @Positive double initialCredit) {
         try {
-            Optional<Account> account = accountService.openAccount(customerID, initialCredit);
-            if (account.isPresent()) {
-                return ResponseEntity.ok("Account created successfully with accountId: " + account.get().getId() + " for customer Id " + customerID);
+            Optional<OpenAccountResponse> openAccountResponse = accountService.openAccount(customerID, initialCredit);
+            if (openAccountResponse.isPresent()) {
+                return ResponseEntity.status(HttpStatus.OK).body(openAccountResponse);
             } else {
                 // Account was not created, possibly due to invalid input or business rules
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Account could not be created for customer Id " + customerID);
