@@ -13,6 +13,7 @@ import com.customer.account.repository.CustomerDetailRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,9 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Value("${transaction.service.url}")
+    private String transactionServiceUrl;
+
     public AccountServiceImpl() {
     }
 
@@ -51,7 +55,6 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(initialCredit);
         Account savedAccount = accountRepository.save(account);
 
-        // If initial credit is provided, create a transaction in the Transaction Service
         createTransaction(customerId, initialCredit, account);
 
         return Optional.of(new Account(savedAccount.getId(), customerDetail, savedAccount.getBalance()));
@@ -61,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
         if (initialCredit > 0) {
             TransactionRequest transactionRequest = new TransactionRequest(account.getId(), initialCredit);
             try {
-                restTemplate.postForObject("http://localhost:8082/api/transactions/create", transactionRequest, String.class);
+                restTemplate.postForObject(transactionServiceUrl + "/create", transactionRequest, String.class);
             } catch (RestClientException e) {
                 throw new ConnectivityException("Please try again later to open account for customer : " + customerId);
             }
@@ -87,22 +90,7 @@ public class AccountServiceImpl implements AccountService {
             totalBalance += account.getBalance();
 
             // Retrieve transactions for each account from the Transaction Service
-            ResponseEntity<List<TransactionInfo>> transactionInfoListResp = null;
-            try {
-                transactionInfoListResp = restTemplate.exchange(
-                        "http://localhost:8082/api/transactions/account/" + account.getId(),
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<>() {
-                        });
-            } catch (RestClientException e) {
-                log.info("Issue occurred with connecting transaction microservice ");
-            }
-
-            List<TransactionInfo> transactionInfoList = new ArrayList<>();
-            if (transactionInfoListResp != null && transactionInfoListResp.getStatusCode().is2xxSuccessful()) {
-                transactionInfoList = transactionInfoListResp.getBody();
-            }
+            List<TransactionInfo> transactionInfoList = getTransactionInfo(account);
 
             accountInfo.setTransactions(transactionInfoList);
             response.getAccounts().add(accountInfo);
@@ -110,5 +98,25 @@ public class AccountServiceImpl implements AccountService {
 
         response.setBalance(totalBalance);
         return Optional.of(response);
+    }
+
+    private List<TransactionInfo> getTransactionInfo(Account account) {
+        ResponseEntity<List<TransactionInfo>> transactionInfoListResp = null;
+        try {
+            transactionInfoListResp = restTemplate.exchange(
+                    transactionServiceUrl + "/account/" + account.getId(),
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {
+                    });
+        } catch (RestClientException e) {
+            log.info("Issue occurred with connecting transaction microservice ");
+        }
+
+        List<TransactionInfo> transactionInfoList = new ArrayList<>();
+        if (transactionInfoListResp != null && transactionInfoListResp.getStatusCode().is2xxSuccessful()) {
+            transactionInfoList = transactionInfoListResp.getBody();
+        }
+        return transactionInfoList;
     }
 }

@@ -15,5 +15,9 @@ spring:
       enabled: true
   jpa:
     hibernate:
-      ddl-auto: update  # Automatically creates or updates tables
-    show-sql: true  # Show SQL statements in the log for debugging
+      ddl-auto: update
+    show-sql: true
+
+transaction:
+  service:
+    url: http://localhost:8082/api/transactions
