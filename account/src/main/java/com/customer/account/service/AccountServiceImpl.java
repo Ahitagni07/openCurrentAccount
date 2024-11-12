@@ -6,15 +6,19 @@ import com.customer.account.dto.TransactionRequest;
 import com.customer.account.dto.UserInfoResponse;
 import com.customer.account.entity.Account;
 import com.customer.account.entity.CustomerDetail;
+import com.customer.account.exceptionhandler.ConnectivityException;
 import com.customer.account.exceptionhandler.CustomerNotFoundException;
 import com.customer.account.repository.AccountRepository;
 import com.customer.account.repository.CustomerDetailRepository;
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -22,9 +26,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
-    private final AccountRepository accountRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Autowired
     private CustomerDetailRepository userRepository;
@@ -32,13 +38,11 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public AccountServiceImpl() {
     }
 
     @Transactional
-    public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException {
+    public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : "+ customerId));
@@ -49,11 +53,20 @@ public class AccountServiceImpl implements AccountService {
         Account savedAccount = accountRepository.save(account);
 
         // If initial credit is provided, create a transaction in the Transaction Service
+        createTransaction(customerId, initialCredit, account);
+
+        return Optional.of(new Account(savedAccount.getId(), customerDetail, savedAccount.getBalance()));
+    }
+
+    public void createTransaction(Long customerId, double initialCredit, Account account) throws ConnectivityException {
         if (initialCredit > 0) {
             TransactionRequest transactionRequest = new TransactionRequest(account.getId(), initialCredit);
-            restTemplate.postForObject("http://localhost:8082/api/transactions/create", transactionRequest, String.class);
+            try {
+                restTemplate.postForObject("http://localhost:8082/api/transactions/create", transactionRequest, String.class);
+            } catch (RestClientException e) {
+                throw new ConnectivityException("Please try again later to open account for customer : "+ customerId);
+            }
         }
-        return Optional.of(new Account(savedAccount.getId(), customerDetail, savedAccount.getBalance()));
     }
 
     public Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException {
@@ -75,14 +88,20 @@ public class AccountServiceImpl implements AccountService {
             totalBalance += account.getBalance();
 
             // Retrieve transactions for each account from the Transaction Service
-            ResponseEntity<List<TransactionInfo>> transactionInfoListResp = restTemplate.exchange(
-                    "http://localhost:8082/api/transactions/account/" + account.getId(),
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<TransactionInfo>>() {});
+            ResponseEntity<List<TransactionInfo>> transactionInfoListResp = null;
+            try {
+                transactionInfoListResp = restTemplate.exchange(
+                        "http://localhost:8082/api/transactions/account/" + account.getId(),
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<>() {
+                        });
+            } catch (RestClientException e) {
+                log.info("Issue occurred with connecting transaction microservice ");
+            }
 
             List<TransactionInfo> transactionInfoList = new ArrayList<>();
-            if(transactionInfoListResp.getStatusCode().is2xxSuccessful()){
+            if(transactionInfoListResp != null && transactionInfoListResp.getStatusCode().is2xxSuccessful()){
                 transactionInfoList = transactionInfoListResp.getBody();
             }
 

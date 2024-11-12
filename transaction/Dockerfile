@@ -8,7 +8,7 @@ WORKDIR /transactionapp
 COPY . .
 
 # Package the application (will create target/*.jar)
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # Expose the port the Spring Boot application runs on
 EXPOSE 8080

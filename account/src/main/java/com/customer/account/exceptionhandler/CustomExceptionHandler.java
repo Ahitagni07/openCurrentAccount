@@ -18,4 +18,12 @@ public class CustomExceptionHandler {
         map.put("message", exception.getMessage());
         return map;
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(ConnectivityException.class)
+    public Map<String, String> handleConnectivityException(ConnectivityException exception) {
+        Map<String, String> map =  new HashMap<>();
+        map.put("message", exception.getMessage());
+        return map;
+    }
 }
