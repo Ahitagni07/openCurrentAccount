@@ -11,7 +11,6 @@ import com.customer.account.exceptionhandler.CustomerNotFoundException;
 import com.customer.account.repository.AccountRepository;
 import com.customer.account.repository.CustomerDetailRepository;
 import jakarta.transaction.Transactional;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -45,7 +44,7 @@ public class AccountServiceImpl implements AccountService {
     public Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : "+ customerId));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : " + customerId));
 
         Account account = new Account();
         account.setCustomerDetail(customerDetail);
@@ -64,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
             try {
                 restTemplate.postForObject("http://localhost:8082/api/transactions/create", transactionRequest, String.class);
             } catch (RestClientException e) {
-                throw new ConnectivityException("Please try again later to open account for customer : "+ customerId);
+                throw new ConnectivityException("Please try again later to open account for customer : " + customerId);
             }
         }
     }
@@ -72,7 +71,7 @@ public class AccountServiceImpl implements AccountService {
     public Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : "+ customerId));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with customerId : " + customerId));
 
         UserInfoResponse response = new UserInfoResponse();
         response.setName(customerDetail.getName());
@@ -101,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             List<TransactionInfo> transactionInfoList = new ArrayList<>();
-            if(transactionInfoListResp != null && transactionInfoListResp.getStatusCode().is2xxSuccessful()){
+            if (transactionInfoListResp != null && transactionInfoListResp.getStatusCode().is2xxSuccessful()) {
                 transactionInfoList = transactionInfoListResp.getBody();
             }
 

@@ -4,10 +4,13 @@ import com.customer.account.dto.UserInfoResponse;
 import com.customer.account.entity.Account;
 import com.customer.account.exceptionhandler.CustomerNotFoundException;
 import com.customer.account.service.AccountService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,13 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
+@Validated
 @RequestMapping("/api/accounts")
 public class AccountController {
     @Autowired
     private AccountService accountService;
 
     @PostMapping(value = "/open", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> openAccount(@RequestParam Long customerID, @RequestParam double initialCredit) {
+    public ResponseEntity<String> openAccount(@RequestParam(required = true) @Valid @Positive Long customerID,
+                                              @RequestParam(required = true) @Valid @Positive double initialCredit) {
         try {
             Optional<Account> account = accountService.openAccount(customerID, initialCredit);
             if (account.isPresent()) {
@@ -38,9 +43,9 @@ public class AccountController {
     }
 
     @GetMapping("/userInfo")
-    public ResponseEntity<UserInfoResponse> getAccountInfo(@RequestParam Long customerID) throws CustomerNotFoundException {
+    public ResponseEntity<UserInfoResponse> getAccountInfo(@RequestParam(required = true) @Valid @Positive Long customerID) throws CustomerNotFoundException {
         Optional<UserInfoResponse> userInfo = accountService.getAccountInfo(customerID);
-        if(userInfo.isPresent()) {
+        if (userInfo.isPresent()) {
             return ResponseEntity.ok(userInfo.get());
         }
         throw new CustomerNotFoundException();

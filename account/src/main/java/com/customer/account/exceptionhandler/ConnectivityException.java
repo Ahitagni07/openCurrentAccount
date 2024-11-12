@@ -4,6 +4,7 @@ public class ConnectivityException extends Exception {
     public ConnectivityException(String message) {
         super(message);
     }
+
     public ConnectivityException() {
 
     }

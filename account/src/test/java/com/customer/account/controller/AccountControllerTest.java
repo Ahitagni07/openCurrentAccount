@@ -13,11 +13,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class AccountControllerTest {
 
@@ -90,7 +93,7 @@ class AccountControllerTest {
     @Test
     void testGetAccountInfo_SuccessfulFetch() throws CustomerNotFoundException {
         Long customerID = 1L;
-        UserInfoResponse userInfoResponse = new UserInfoResponse();
+        UserInfoResponse userInfoResponse = new UserInfoResponse("", "", 0.0, new ArrayList<>());
 
         // Mock the service method
         when(accountService.getAccountInfo(customerID)).thenReturn(Optional.of(userInfoResponse));

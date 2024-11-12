@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface AccountService {
     Optional<Account> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException;
+
     Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException;
 }
