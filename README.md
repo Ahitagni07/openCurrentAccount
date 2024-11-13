@@ -83,6 +83,27 @@ response structure is like below
            }
        ]
 
+### Database tables ###
+In **account** microservice there are `account` and `customer_detail` tables. 
+`account` table is in manytoone relation with `customer_detail` like below.
+
+      @ManyToOne
+      @JoinColumn(name = "userId")
+      private CustomerDetail customerDetail;
+
+In **transaction** microservice, there is `transaction` table. It saves `accountId`, `transactionAmount` and `timestamp`.
+
+You can access **account** database with this [Account H2 console path](http://localhost:8080/h2-console) with below details
+
+      JDBC URL : jdbc:h2:mem:accountdb
+      User name : sa
+      Password : password
+
+and transaction database with this [Transaction H2 console path](http://localhost:8082/h2-console) with below details
+
+      JDBC URL : jdbc:h2:mem:transactiondb
+      User Name : sa
+      Password : password
 
 ### Devops pipeline ###
 There is [azure-pipelines-account.yml](https://github.com/Ahitagni07/openCurrentAccount/blob/main/azure-pipelines-account.yml) and 
