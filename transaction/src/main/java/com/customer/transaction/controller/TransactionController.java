@@ -28,12 +28,26 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/create")
+    /**
+     * this api is getting called from account service to create transaction when a account is created
+     * with non-zero initial credit.
+     *
+     * @param transactionRequest
+     * @return
+     */
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createTransaction(@RequestBody @Valid TransactionRequest transactionRequest) {
         transactionService.createTransaction(transactionRequest.getAccountId(), transactionRequest.getAmount());
         return ResponseEntity.ok("Transaction is created for account Id " + transactionRequest.getAccountId());
     }
 
+    /**
+     * this api is used to get accountinfo with passing valid accountid.
+     *
+     * @param accountId
+     * @return
+     * @throws AccountNotFoundException
+     */
     @GetMapping(value = "/account/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTransactionsByAccountId(@PathVariable(required = true) @Positive(message = "Kindly check with valid account detail") Long accountId) throws AccountNotFoundException {
         Optional<List<TransactionInfo>> transactionInfoList = transactionService.getTransactionsByAccountId(accountId);

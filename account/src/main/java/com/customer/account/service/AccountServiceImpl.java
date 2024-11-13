@@ -45,6 +45,16 @@ public class AccountServiceImpl implements AccountService {
     public AccountServiceImpl() {
     }
 
+    /**
+     * This method is used to open current account for existing customer.
+     * if initial credit is not zero then it will create a transaction and
+     * will call transaction service.
+     * @param customerId
+     * @param initialCredit
+     * @return
+     * @throws CustomerNotFoundException
+     * @throws ConnectivityException
+     */
     @Transactional
     public Optional<OpenAccountResponse> openAccount(Long customerId, double initialCredit) throws CustomerNotFoundException, ConnectivityException {
 
@@ -61,6 +71,14 @@ public class AccountServiceImpl implements AccountService {
         return Optional.of(new OpenAccountResponse(savedAccount.getId(), customerDetail.getId(), "Account created successfully"));
     }
 
+    /**
+     * this method to create transaction-service from account service to create a transaction
+     *
+     * @param customerId
+     * @param initialCredit
+     * @param account
+     * @throws ConnectivityException
+     */
     @Transactional
     public void createTransaction(Long customerId, double initialCredit, Account account) throws ConnectivityException {
         if (initialCredit > 0) {
@@ -75,6 +93,14 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    /**
+     * this method is to get account details for a specific customer passing the customerid,
+     * which is primary key of customer_detail table
+     *
+     * @param customerId
+     * @return
+     * @throws CustomerNotFoundException
+     */
     public Optional<UserInfoResponse> getAccountInfo(Long customerId) throws CustomerNotFoundException {
 
         CustomerDetail customerDetail = userRepository.findById(customerId)
@@ -104,6 +130,7 @@ public class AccountServiceImpl implements AccountService {
         return Optional.of(response);
     }
 
+    // Retrieve transactions for each account from the Transaction Service
     private List<TransactionInfo> getTransactionInfo(Account account) {
         ResponseEntity<List<TransactionInfo>> transactionInfoListResp = null;
         try {

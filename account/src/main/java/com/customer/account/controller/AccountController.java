@@ -6,6 +6,7 @@ import com.customer.account.entity.Account;
 import com.customer.account.exceptionhandler.CustomerNotFoundException;
 import com.customer.account.service.AccountService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,9 +28,19 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * This api is used to open current account for existing customer.
+     * if initial credit is not zero then it will create a transaction and
+     * will call transaction service.
+     * also possible validations added
+     *
+     * @param customerID
+     * @param initialCredit
+     * @return
+     */
     @PostMapping(value = "/open", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> openAccount(@RequestParam(required = true) @Valid @Positive Long customerID,
-                                              @RequestParam(required = true) @Valid @Positive double initialCredit) {
+                                              @RequestParam(required = true) @Valid @Min(0) double initialCredit) {
         try {
             Optional<OpenAccountResponse> openAccountResponse = accountService.openAccount(customerID, initialCredit);
             if (openAccountResponse.isPresent()) {
@@ -43,7 +54,15 @@ public class AccountController {
         }
     }
 
-    @GetMapping("/userInfo")
+    /**
+     * this api is to get account details for a specific customer passing the customerid,
+     * which is primary key of customer_detail table
+     *
+     * @param customerID
+     * @return
+     * @throws CustomerNotFoundException
+     */
+    @GetMapping(value = "/userInfo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserInfoResponse> getAccountInfo(@RequestParam(required = true) @Valid @Positive Long customerID) throws CustomerNotFoundException {
         Optional<UserInfoResponse> userInfo = accountService.getAccountInfo(customerID);
         if (userInfo.isPresent()) {

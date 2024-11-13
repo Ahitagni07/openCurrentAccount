@@ -18,6 +18,13 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    /**
+     * this method is getting called from account service to create transaction when a account is created
+     * with non-zero initial credit.
+     *
+     * @param accountID
+     * @param amount
+     */
     public void createTransaction(Long accountID, Double amount) {
         Transaction transaction = new Transaction();
         transaction.setAccountId(accountID);
@@ -26,6 +33,12 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
+    /**
+     * this method is used to get accountinfo with passing valid accountid.
+     * @param accountID
+     * @return
+     * @throws AccountNotFoundException
+     */
     public Optional<List<TransactionInfo>> getTransactionsByAccountId(Long accountID) throws AccountNotFoundException {
         List<Transaction> transactionList = transactionRepository.findByAccountId(accountID);
         if (transactionList.isEmpty()) {
