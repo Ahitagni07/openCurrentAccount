@@ -99,11 +99,14 @@ You can access **account** database with this [Account H2 console path](http://l
       User name : sa
       Password : password
 
-and transaction database with this [Transaction H2 console path](http://localhost:8082/h2-console) with below details
+and **transaction** database with this [Transaction H2 console path](http://localhost:8082/h2-console) with below details
 
       JDBC URL : jdbc:h2:mem:transactiondb
       User Name : sa
       Password : password
+
+### Swagger Configuration ###
+Here are the swagger URL for both the microservices [account](http://localhost:8080/swagger-ui/index.html) and [transaction](http://localhost:8082/swagger-ui/index.html)
 
 ### Devops pipeline ###
 There is [azure-pipelines-account.yml](https://github.com/Ahitagni07/openCurrentAccount/blob/main/azure-pipelines-account.yml) and 
