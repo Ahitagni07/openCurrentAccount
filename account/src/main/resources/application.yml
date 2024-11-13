@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: Account
+    name: account-service
   datasource:
     url: jdbc:h2:mem:accountdb;
     driver-class-name: org.h2.Driver
@@ -23,4 +23,4 @@ spring:
 
 transaction:
   service:
-    url: http://135.236.193.130:8082/api/transactions
+    url: http://transaction-service:8082/api/transactions
