@@ -94,6 +94,7 @@ For Kubenetes deployment `service` and `deployment` files are also present insid
 ### Testing ###
 For testing purpose, I have created a [docker-compose.yml](https://github.com/Ahitagni07/openCurrentAccount/blob/main/docker-compose.yml) file,
 through which two microservices can communicate with each other with service name.
+Unit test cases are also written on `controller` and `service` classes.
 
 For testing, you can run `docker-compose up -d` command inside the project directory, it will build and run both the images for
 `account-service` and `transaction-service` using the respective Dockerfile in each service’s folder.
