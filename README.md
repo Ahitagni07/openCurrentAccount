@@ -111,8 +111,14 @@ Here are the swagger URL for both the microservices [account](http://localhost:8
 ### Devops pipeline ###
 There is [azure-pipelines-account.yml](https://github.com/Ahitagni07/openCurrentAccount/blob/main/azure-pipelines-account.yml) and 
 [azure-pipelines-transaction.yml](https://github.com/Ahitagni07/openCurrentAccount/blob/main/azure-pipelines-transaction.yml), where azure pipelines
-are defined to deploy both the microservices as container image and host the applications in kubernetes cluster.
-For Kubenetes deployment `service` and `deployment` files are also present inside `manifest` folder.
+are defined to deploy both the microservices as container image and host the applications in kubernetes cluster. I have used Azure container registry to 
+store the images for both the account and transaction services. And from ACR, images are pulled to Kubernetes cluster. I have used Load balancer service so 
+external IP can be given for external access.
+
+![img.png](img.png)
+Here is the image of successful run azure pipeline.
+
+For Kubernetes deployment `service` and `deployment` files are also present inside `manifest` folder.
 
 
 ### Testing ###
