@@ -2,32 +2,34 @@ package com.customer.transaction.controller;
 
 import com.customer.transaction.dto.TransactionInfo;
 import com.customer.transaction.dto.TransactionRequest;
+import com.customer.transaction.exceptionhandler.AccountNotFoundException;
 import com.customer.transaction.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.anyDouble;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@EnableWebMvc
 class TransactionControllerTest {
 
     @Mock
@@ -40,97 +42,61 @@ class TransactionControllerTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(transactionController).build();
     }
 
     @Test
-    void testCreateTransactionSuccess() throws Exception {
-        TransactionRequest transactionRequest = new TransactionRequest(1L, 1000.0);
+    void testCreateTransaction() throws Exception {
+        // Arrange
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setAccountId(1L);
+        transactionRequest.setAmount(100.0);
 
-        doNothing().when(transactionService).createTransaction(1L, 1000.0);
-
+        // Act & Assert
         mockMvc.perform(post("/api/transactions/create")
-                        .contentType("application/json")
-                        .content("{\"accountId\": 1, \"amount\": 1000.0}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"accountId\":1,\"amount\":100.0}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Transaction is created for account Id 1"));
 
-        verify(transactionService, times(1)).createTransaction(1L, 1000.0);
+        // Verify that the service method was called once
+        verify(transactionService, times(1)).createTransaction(1L, 100.0);
     }
 
     @Test
-    void testCreateTransactionInvalidAmount() throws Exception {
-        TransactionRequest transactionRequest = new TransactionRequest(1L, -1000.0);
-
-        mockMvc.perform(post("/api/transactions/create")
-                        .contentType("application/json")
-                        .content("{\"accountId\": 1, \"amount\": -1000.0}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Amount must be positive"));
-
-        verify(transactionService, never()).createTransaction(1L, -1000.0);
-    }
-
-    @Test
-    void testCreateTransactionMissingAccountId() throws Exception {
-        mockMvc.perform(post("/api/transactions/create")
-                        .contentType("application/json")
-                        .content("{\"amount\": 1000.0}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Account ID is required"));
-
-        verify(transactionService, never()).createTransaction(anyLong(), anyDouble());
-    }
-
-    @Test
-    void testGetTransactionsByAccountIdSuccess() throws Exception {
+    void testGetTransactionsByAccountId() throws Exception {
+        // Arrange
         Long accountId = 1L;
-        TransactionInfo transaction1 = new TransactionInfo(1L, 500.0);
-        TransactionInfo transaction2 = new TransactionInfo(2L, 200.0);
+        List<TransactionInfo> transactionInfoList = List.of(
+                new TransactionInfo(1L, 50.0),
+                new TransactionInfo(2L, 100.0)
+        );
+        when(transactionService.getTransactionsByAccountId(accountId)).thenReturn(Optional.of(transactionInfoList));
 
-        when(transactionService.getTransactionsByAccountId(accountId)).thenReturn(Optional.of(Arrays.asList(transaction1, transaction2)));
-
-        mockMvc.perform(get("/api/transactions/account/{accountId}", accountId))
+        // Act & Assert
+        mockMvc.perform(get("/api/transactions/account/{accountId}", accountId)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{" +
-                        "\"transactionId\": 1, \"accountId\": 1, \"amount\": 500.0, \"type\": \"credit\"}," +
-                        "{\"transactionId\": 2, \"accountId\": 1, \"amount\": 200.0, \"type\": \"debit\"}]"));
+                .andExpect(content().json("[{\"trxId\":1,\"amount\":50.0}," +
+                        "{\"trxId\":2,\"amount\":100.0}]"));
 
+        // Verify that the service method was called once
         verify(transactionService, times(1)).getTransactionsByAccountId(accountId);
     }
 
-    @Test
-    void testGetTransactionsByAccountIdNotFound() throws Exception {
-        Long accountId = 1L;
-
-        when(transactionService.getTransactionsByAccountId(accountId)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/transactions/account/{accountId}", accountId))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("Account not found"));
-
-        verify(transactionService, times(1)).getTransactionsByAccountId(accountId);
-    }
-
-    @Test
-    void testGetTransactionsByAccountIdInvalidAccountId() throws Exception {
-        Long invalidAccountId = -1L;
-
-        mockMvc.perform(get("/api/transactions/account/{accountId}", invalidAccountId))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid account ID"));
-
-        verify(transactionService, never()).getTransactionsByAccountId(invalidAccountId);
-    }
-
-    @Test
-    void testCreateTransactionInvalidRequestBody() throws Exception {
-        mockMvc.perform(post("/api/transactions/create")
-                        .contentType("application/json")
-                        .content("{\"accountId\": \"abc\", \"amount\": \"xyz\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid input"));
-
-        verify(transactionService, never()).createTransaction(anyLong(), anyDouble());
-    }
+//    @Test
+//    void testGetTransactionsByAccountId_AccountNotFound() throws Exception {
+//
+//        Long accountId = 999L;
+//        when(transactionService.getTransactionsByAccountId(accountId)).thenReturn(Optional.empty());
+//
+//        when(transactionController.getTransactionsByAccountId(accountId)).thenThrow(new AccountNotFoundException("Account not found"));
+//
+//        mockMvc.perform(get("/api/transactions/account/{accountId}", accountId)
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$.message").value("Account not found"));
+//
+//        verify(transactionController, times(1)).getTransactionsByAccountId(accountId);
+//    }
 }

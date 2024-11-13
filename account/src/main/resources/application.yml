@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name:Account
+    name: Account
   datasource:
     url: jdbc:h2:mem:accountdb;
     driver-class-name: org.h2.Driver
@@ -13,6 +13,9 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: 'true'
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,4 +23,4 @@ spring:
 
 transaction:
   service:
-    url: http://localhost:8082/api/transactions
+    url: http://135.236.193.130:8082/api/transactions

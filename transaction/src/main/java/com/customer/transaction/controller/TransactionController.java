@@ -35,7 +35,7 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/account/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getTransactionsByAccountId(@PathVariable(required = true) @Positive(message = "AccountId must be positive") Long accountId) throws AccountNotFoundException {
+    public ResponseEntity<?> getTransactionsByAccountId(@PathVariable(required = true) @Positive(message = "Kindly check with valid account detail") Long accountId) throws AccountNotFoundException {
         Optional<List<TransactionInfo>> transactionInfoList = transactionService.getTransactionsByAccountId(accountId);
         if (transactionInfoList.isPresent()) {
             return ResponseEntity.ok(transactionInfoList.get());

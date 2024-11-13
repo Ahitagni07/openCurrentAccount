@@ -1,5 +1,8 @@
-# openCurrentAccount
+# Open Current account for Existing customer
 
-[![Build Status](https://dev.azure.com/ahitagnisaha/openAccountCICD/_apis/build/status%2Faccountpipeline?branchName=main)](https://dev.azure.com/ahitagnisaha/openAccountCICD/_build/latest?definitionId=6&branchName=main)
+This application is about opening a new current account for already customers.
 
-[![Build Status](https://dev.azure.com/ahitagnisaha/openAccountCICD/_apis/build/status%2Ftransactionpipeline?branchName=main)](https://dev.azure.com/ahitagnisaha/openAccountCICD/_build/latest?definitionId=7&branchName=main)
+Technologies used
+
+
+

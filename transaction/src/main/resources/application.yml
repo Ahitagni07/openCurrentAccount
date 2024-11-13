@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: Transaction
+    name: transaction-service
   datasource:
     url: jdbc:h2:mem:transactiondb;
     driver-class-name: org.h2.Driver
@@ -13,6 +13,9 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: 'true'
   jpa:
     hibernate:
       ddl-auto: update

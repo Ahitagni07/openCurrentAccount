@@ -61,12 +61,15 @@ public class AccountServiceImpl implements AccountService {
         return Optional.of(new OpenAccountResponse(savedAccount.getId(), customerDetail.getId(), "Account created successfully"));
     }
 
+    @Transactional
     public void createTransaction(Long customerId, double initialCredit, Account account) throws ConnectivityException {
         if (initialCredit > 0) {
             TransactionRequest transactionRequest = new TransactionRequest(account.getId(), initialCredit);
             try {
+                log.info("calling transaction service to create transaction for this account");
                 restTemplate.postForObject(transactionServiceUrl + "/create", transactionRequest, String.class);
             } catch (RestClientException e) {
+                log.error("error occurred while connecting transaction service "+e.getMessage());
                 throw new ConnectivityException("Please try again later to open account for customer : " + customerId);
             }
         }
@@ -104,6 +107,7 @@ public class AccountServiceImpl implements AccountService {
     private List<TransactionInfo> getTransactionInfo(Account account) {
         ResponseEntity<List<TransactionInfo>> transactionInfoListResp = null;
         try {
+            log.info("calling transaction service to get transaction info for this account");
             transactionInfoListResp = restTemplate.exchange(
                     transactionServiceUrl + "/account/" + account.getId(),
                     HttpMethod.GET,
@@ -111,7 +115,7 @@ public class AccountServiceImpl implements AccountService {
                     new ParameterizedTypeReference<>() {
                     });
         } catch (RestClientException e) {
-            log.info("Issue occurred with connecting transaction microservice ");
+            log.error("Issue occurred with connecting transaction microservice "+e.getMessage());
         }
 
         List<TransactionInfo> transactionInfoList = new ArrayList<>();
