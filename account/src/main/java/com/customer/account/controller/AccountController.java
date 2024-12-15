@@ -56,7 +56,7 @@ public class AccountController {
 
     /**
      * this api is to get account details for a specific customer passing the customerid,
-     * which is primary key of customer_detail table
+     * which is primary key of customer_detail table which is in H2 database
      *
      * @param customerID
      * @return
